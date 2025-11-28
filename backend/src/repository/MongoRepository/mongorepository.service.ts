@@ -1,11 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IRepositoryService } from '../repository.interface';
 import { GetFilmDTO } from '../../films/dto/films.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Film } from 'src/films/schemas/films.schema';
+import { Film } from '../../films/schemas/films.schema';
 import { Model } from 'mongoose';
-import { PostOrderDTO } from 'src/order/dto/order.dto';
+import { PostOrderDTO } from '../../order/dto/order.dto';
 import { randomUUID } from 'crypto';
+import {
+  TicketsNotFoundInOrderException,
+  FilmOrSessionNotFoundException,
+  SeatAlreadyBookingException,
+} from '../../exceptions/order.exceptions';
 
 @Injectable()
 export class MongoRepositoryService implements IRepositoryService {
@@ -32,7 +37,7 @@ export class MongoRepositoryService implements IRepositoryService {
     console.log('RepositoryService::getFilms');
     const filmsCount = await this.filmModel.countDocuments({});
     const films = await this.filmModel.find({});
-    if (!films) throw new BadRequestException({ message: `Films not found` });
+    if (!films) return null;
 
     const dbFilms = films.map(this.getFilmMapperFn());
 
@@ -50,10 +55,7 @@ export class MongoRepositoryService implements IRepositoryService {
   async getFilmSchedule(id: string) {
     console.log('RepositoryService::getFilmSchedule(id: string),', id);
     const dbFilm = await this.filmModel.findOne({ id: id });
-    if (!dbFilm)
-      throw new BadRequestException({
-        message: `Film with id ${id} not found`,
-      });
+    if (!dbFilm) return null;
 
     const { schedule } = this.getFilmMapperFn()(dbFilm);
     return {
@@ -62,32 +64,62 @@ export class MongoRepositoryService implements IRepositoryService {
     };
   }
 
+  private generateTicketString(row: number, seat: number): string {
+    return `${row}:${seat}`;
+  }
+
   async postOrder(order: PostOrderDTO) {
     console.log(
       `RepositoryService::postOrder(order: ${JSON.stringify(order)})`,
     );
-    if (order.tickets.length === 0)
-      throw new BadRequestException({ message: 'no tickets in request' });
+    if (order.tickets.length === 0) {
+      throw new TicketsNotFoundInOrderException();
+    }
 
-    order.tickets.forEach(async (ticket) => {
-      const film = await this.filmModel.updateOne(
+    for (const ticket of order.tickets) {
+      const film = await this.filmModel.findOne({
+        id: ticket.film,
+        schedule: {
+          $elemMatch: { id: ticket.session },
+        },
+      });
+      if (!film) {
+        console.log('noFilms');
+        throw new FilmOrSessionNotFoundException(ticket.film, ticket.session);
+      }
+      const session = film.schedule.find(
+        (session) => session.id === ticket.session,
+      );
+      if (
+        session.taken.includes(
+          this.generateTicketString(ticket.row, ticket.seat),
+        )
+      ) {
+        console.log('noSeat');
+        throw new SeatAlreadyBookingException(ticket.seat, ticket.row);
+      }
+    }
+
+    for (const ticket of order.tickets) {
+      await this.filmModel.updateOne(
         {
           id: ticket.film,
           schedule: { $elemMatch: { id: ticket.session } },
         },
         {
           $push: {
-            'schedule.$.taken': `${ticket.row}:${ticket.seat}`,
+            'schedule.$.taken': this.generateTicketString(
+              ticket.row,
+              ticket.seat,
+            ),
           },
         },
         {
           new: true,
         },
       );
-      if (!film)
-        throw new BadRequestException({ message: 'session not found' });
-      // console.log(this.getFilmMapperFn()(film));
-    });
+    }
+
     const responseObject = {
       total: order.tickets.length,
       items: order.tickets.map((ticket) => ({
@@ -95,7 +127,6 @@ export class MongoRepositoryService implements IRepositoryService {
         id: randomUUID(),
       })),
     };
-    console.log(responseObject);
     return responseObject;
   }
 }

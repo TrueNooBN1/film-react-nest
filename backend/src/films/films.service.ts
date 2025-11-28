@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   IRepositoryService,
   FILM_REPOSITORY_SERVICE,
@@ -13,11 +18,20 @@ export class FilmsService {
 
   async getFilms() {
     console.log('FilmsService::getFilms');
-    return this.repository.getFilms();
+    const films = this.repository.getFilms();
+    if (!films) throw new BadRequestException({ message: `Films not found` });
+    return films;
   }
 
   async getFilmSchedule(id: string) {
     console.log('FilmsService::getFilmSchedule(id: string),', id);
-    return this.repository.getFilmSchedule(id);
+    const schedule = await this.repository.getFilmSchedule(id);
+    if (!schedule) {
+      throw new NotFoundException({
+        message: `Film with id ${id} not found`,
+      });
+    }
+
+    return schedule;
   }
 }
