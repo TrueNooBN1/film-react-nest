@@ -3,6 +3,7 @@ import {
   IRepositoryService,
   FILM_REPOSITORY_SERVICE,
 } from '../repository/repository.interface';
+import { PostOrderDTO } from './dto/order.dto';
 
 @Injectable()
 export class OrderService {
@@ -11,8 +12,8 @@ export class OrderService {
     private readonly repository: IRepositoryService,
   ) {}
 
-  async postOrder(filmId: string, row: number, seat: number) {
-    console.log(`postOrder(filmId: ${filmId}, row: ${row}, seat: ${seat})`);
-    return this.repository.postOrder(filmId, row, seat);
+  async postOrder(order: PostOrderDTO) {
+    console.log(`OrderService::postOrder(order: ${JSON.stringify(order)})`);
+    return this.repository.postOrder(order);
   }
 }

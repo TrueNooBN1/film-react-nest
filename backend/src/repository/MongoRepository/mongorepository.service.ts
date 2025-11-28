@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { IRepositoryService } from '../repository.interface';
 import { GetFilmDTO } from '../../films/dto/films.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Film } from 'src/films/schemas/films.schema';
 import { Model } from 'mongoose';
+import { PostOrderDTO } from 'src/order/dto/order.dto';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class MongoRepositoryService implements IRepositoryService {
@@ -30,7 +32,7 @@ export class MongoRepositoryService implements IRepositoryService {
     console.log('RepositoryService::getFilms');
     const filmsCount = await this.filmModel.countDocuments({});
     const films = await this.filmModel.find({});
-    if (!films) throw new NotFoundException({ message: `Films not found` });
+    if (!films) throw new BadRequestException({ message: `Films not found` });
 
     const dbFilms = films.map(this.getFilmMapperFn());
 
@@ -49,7 +51,9 @@ export class MongoRepositoryService implements IRepositoryService {
     console.log('RepositoryService::getFilmSchedule(id: string),', id);
     const dbFilm = await this.filmModel.findOne({ id: id });
     if (!dbFilm)
-      throw new NotFoundException({ message: `Film with id ${id} not found` });
+      throw new BadRequestException({
+        message: `Film with id ${id} not found`,
+      });
 
     const { schedule } = this.getFilmMapperFn()(dbFilm);
     return {
@@ -58,9 +62,40 @@ export class MongoRepositoryService implements IRepositoryService {
     };
   }
 
-  async postOrder(filmId: string, row: number, seat: number) {
+  async postOrder(order: PostOrderDTO) {
     console.log(
-      `RepositoryService::postOrder(filmId: ${filmId}, row: ${row}, seat: ${seat})`,
+      `RepositoryService::postOrder(order: ${JSON.stringify(order)})`,
     );
+    if (order.tickets.length === 0)
+      throw new BadRequestException({ message: 'no tickets in request' });
+
+    order.tickets.forEach(async (ticket) => {
+      const film = await this.filmModel.updateOne(
+        {
+          id: ticket.film,
+          schedule: { $elemMatch: { id: ticket.session } },
+        },
+        {
+          $push: {
+            'schedule.$.taken': `${ticket.row}:${ticket.seat}`,
+          },
+        },
+        {
+          new: true,
+        },
+      );
+      if (!film)
+        throw new BadRequestException({ message: 'session not found' });
+      // console.log(this.getFilmMapperFn()(film));
+    });
+    const responseObject = {
+      total: order.tickets.length,
+      items: order.tickets.map((ticket) => ({
+        ...ticket,
+        id: randomUUID(),
+      })),
+    };
+    console.log(responseObject);
+    return responseObject;
   }
 }

@@ -12,13 +12,11 @@ export class FilmsService {
   ) {}
 
   async getFilms() {
-    // :GetFilmDTO
     console.log('FilmsService::getFilms');
     return this.repository.getFilms();
   }
 
   async getFilmSchedule(id: string) {
-    //: GetSchedulDTO
     console.log('FilmsService::getFilmSchedule(id: string),', id);
     return this.repository.getFilmSchedule(id);
   }
