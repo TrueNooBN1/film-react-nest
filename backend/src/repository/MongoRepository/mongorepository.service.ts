@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IRepositoryService } from '../repository.interface';
+import {
+  generateTicketString,
+  IRepositoryService,
+} from '../repository.interface';
 import { GetFilmDTO } from '../../films/dto/films.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Film } from '../../films/schemas/films.schema';
@@ -64,10 +67,6 @@ export class MongoRepositoryService implements IRepositoryService {
     };
   }
 
-  private generateTicketString(row: number, seat: number): string {
-    return `${row}:${seat}`;
-  }
-
   async postOrder(order: PostOrderDTO) {
     console.log(
       `RepositoryService::postOrder(order: ${JSON.stringify(order)})`,
@@ -91,9 +90,7 @@ export class MongoRepositoryService implements IRepositoryService {
         (session) => session.id === ticket.session,
       );
       if (
-        session.taken.includes(
-          this.generateTicketString(ticket.row, ticket.seat),
-        )
+        session.taken.includes(generateTicketString(ticket.row, ticket.seat))
       ) {
         console.log('noSeat');
         throw new SeatAlreadyBookingException(ticket.seat, ticket.row);
@@ -108,10 +105,7 @@ export class MongoRepositoryService implements IRepositoryService {
         },
         {
           $push: {
-            'schedule.$.taken': this.generateTicketString(
-              ticket.row,
-              ticket.seat,
-            ),
+            'schedule.$.taken': generateTicketString(ticket.row, ticket.seat),
           },
         },
         {
