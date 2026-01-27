@@ -29,10 +29,6 @@ export class DatabaseModule {
           provide: FILM_REPOSITORY_SERVICE,
           useClass: PostrgreSqlRepositoryService,
         });
-        console.log(configProvider.useValue.database.url);
-        console.log(configProvider.useValue.database.sqldatabase.port);
-        console.log(configProvider.useValue.database.sqldatabase.username);
-        console.log(configProvider.useValue.database.sqldatabase.password);
         imports.push(
           TypeOrmModule.forRoot({
             type: 'postgres',
