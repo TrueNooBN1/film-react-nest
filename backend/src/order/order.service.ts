@@ -26,6 +26,9 @@ export class OrderService {
   async postOrder(order: PostOrderDTO) {
     console.log(`OrderService::postOrder(order: ${JSON.stringify(order)})`);
     try {
+      if (!order.tickets || order.tickets.length === 0) {
+        throw new TicketsNotFoundInOrderException();
+      }
       const orderResponse = await this.repository.postOrder(order);
       return orderResponse;
     } catch (error) {

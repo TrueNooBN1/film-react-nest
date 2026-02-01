@@ -3,7 +3,8 @@ import { LoggerService, Injectable, Scope } from '@nestjs/common';
 @Injectable({ scope: Scope.TRANSIENT })
 export class TSKVLogger implements LoggerService {
   formatMessage(level: string, message: any, ...optionalParams: any[]) {
-    return `level=${level}\tmessage=${message}\toptionalParams=${optionalParams}\n`;
+    const filteredMessage = message.replace("\t", " ");
+    return `level=${level}\tmessage=${filteredMessage}\toptionalParams=${JSON.stringify(optionalParams)}\n`;
   }
   /**
    * Write a 'log' level log.
