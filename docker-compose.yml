@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  backend:
+    build: 
+      context: .
+      restart: unless-stopped 
+      #restart: on-failure//prod
+      dockerfile: Dockerfile.dev 
+    image: "backend-docker:dev" # образ будет называться nestjs-app с тегом dev
+    networks:
+      - no-internet
+      - internet
+    ports:
+      - "3000:3000" 
+    depends_on:
+      - postgres
+    healthcheck:
+      test: "wget -nv -t1 --spider 'http://localhost:3000/'"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: "postgres:16"
+    # в окружение контейнера попадут переменные из файла .env 
+    env_file:
+     - ./.env
+#     - ./.env.production 
+#    environment:
+#      POSTGRES_PASSWORD: secretpassword 
+  PGDATA: /var/lib/postgresql/data/pgdata
+  volumes:
+    # монтируем директорию ./pg-data основной ОС в директорию с данными в контейнере
+     - ./pg-data:/var/lib/postgresql/data/pgdata
+  networks:
+     - internal-network
+     
+networks:
+  internal-network:
+    driver: bridge
+    internal: true
+  internet:
+    driver: bridge 
