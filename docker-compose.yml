@@ -1,15 +1,18 @@
 version: "3.9"
 services:
+
   backend:
     build: 
-      context: .
-      restart: unless-stopped 
-      #restart: on-failure//prod
-      dockerfile: Dockerfile.dev 
-    image: "backend-docker:dev" # образ будет называться nestjs-app с тегом dev
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped 
+    #restart: on-failure #prod
+
+    image: "backend-docker:latest" # образ будет называться backend-docker с тегом latest
+    env_file:
+     - backend/.env
     networks:
-      - no-internet
-      - internet
+      - internal-network
     ports:
       - "3000:3000" 
     depends_on:
@@ -21,24 +24,74 @@ services:
       retries: 3
       start_period: 40s
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    image: "frontend-docker:latest"
+    # в окружение контейнера попадут переменные из файла .env 
+    env_file:
+     - ./frontend/.env
+    networks:
+     - internal-network
+    volumes:
+    # Монтируем volume в директорию сборки
+     - frontend-dist:/app/frontend/build-output/
+
+  nginx:
+    image: "nginx:alpine"
+    ports:
+    - 80:80
+    - 443:443
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped 
+    #restart: on-failure #prod
+    volumes:
+      - frontend-dist:/usr/share/nginx/html:ro
+    networks:
+      - internal-network
+      - internet
+
   postgres:
     image: "postgres:16"
     # в окружение контейнера попадут переменные из файла .env 
-    env_file:
-     - ./.env
-#     - ./.env.production 
-#    environment:
-#      POSTGRES_PASSWORD: secretpassword 
-  PGDATA: /var/lib/postgresql/data/pgdata
-  volumes:
+    environment:
+      POSTGRES_PASSWORD: secretpassword 
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
     # монтируем директорию ./pg-data основной ОС в директорию с данными в контейнере
      - ./pg-data:/var/lib/postgresql/data/pgdata
-  networks:
+    networks:
      - internal-network
-     
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_docker
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.ru
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - internal-network
+      - internet
+    depends_on:
+      - postgres
+    volumes:
+    - pgadmin-data:/var/lib/pgadmin
+
 networks:
   internal-network:
     driver: bridge
     internal: true
   internet:
     driver: bridge 
+
+volumes:
+  pgdata:
+  frontend-dist:
+  pgadmin-data:
