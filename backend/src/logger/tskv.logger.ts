@@ -3,7 +3,7 @@ import { LoggerService, Injectable, Scope } from '@nestjs/common';
 @Injectable({ scope: Scope.TRANSIENT })
 export class TSKVLogger implements LoggerService {
   formatMessage(level: string, message: any, ...optionalParams: any[]) {
-    const filteredMessage = message.replace("\t", " ");
+    const filteredMessage = message.replace('\t', ' ');
     return `level=${level}\tmessage=${filteredMessage}\toptionalParams=${JSON.stringify(optionalParams)}\n`;
   }
   /**
@@ -40,4 +40,4 @@ export class TSKVLogger implements LoggerService {
   verbose?(message: any, ...optionalParams: any[]) {
     console.log(this.formatMessage('verbose', message, optionalParams));
   }
-} 
+}

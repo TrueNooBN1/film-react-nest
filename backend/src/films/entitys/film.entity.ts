@@ -30,6 +30,6 @@ export class FilmEntity {
   @Column()
   description: string;
 
-  @OneToMany(()=> Schedule, (schedule=>schedule.filmId))
-  schedule : Schedule
+  @OneToMany(() => Schedule, (schedule) => schedule.filmId)
+  schedule: Schedule;
 }

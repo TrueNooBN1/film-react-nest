@@ -6,7 +6,6 @@ import {
 } from '../repository.interface';
 import { PostOrderDTO } from '../../order/dto/order.dto';
 import {
-  TicketsNotFoundInOrderException,
   FilmOrSessionNotFoundException,
   SeatAlreadyBookingException,
 } from '../../exceptions/order.exceptions';

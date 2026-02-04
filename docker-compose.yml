@@ -2,13 +2,14 @@ version: "3.9"
 services:
 
   backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    # build: 
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    # image: "backend-docker:latest" # образ будет называться backend-docker с тегом latest
+    image: ghcr.io/truenoobn1/film-react-nest-backend:latest
     restart: unless-stopped 
     #restart: on-failure #prod
 
-    image: "backend-docker:latest" # образ будет называться backend-docker с тегом latest
     env_file:
      - backend/.env
     networks:
@@ -25,10 +26,11 @@ services:
       start_period: 40s
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: "frontend-docker:latest"
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
+    # image: "frontend-docker:latest"
+    image: ghcr.io/truenoobn1/film-react-nest-frontend:latest
     # в окружение контейнера попадут переменные из файла .env 
     env_file:
      - ./frontend/.env

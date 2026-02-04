@@ -33,16 +33,17 @@ describe('OrderService', () => {
 
   it('should be create order succesfully', async () => {
     const result = await service.postOrder(postOrderMock);
-    expect(result).toEqual(orderMockResult);    
+    expect(result).toEqual(orderMockResult);
   });
 
   it('should be reject order', async () => {
     const postOrderIncorrectSession = {
       ...postOrderMock,
-      tickets: []
+      tickets: [],
     };
     // postOrderIncorrectSession.tickets = [];
-    await expect(service.postOrder(postOrderIncorrectSession)).rejects.toThrow(BadRequestException);    
-
+    await expect(service.postOrder(postOrderIncorrectSession)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });

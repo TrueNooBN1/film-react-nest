@@ -1,7 +1,6 @@
-import { JsonLogger } from "./json.logger";
+import { JsonLogger } from './json.logger';
 
-describe('JsonLogger', ()=>{
-
+describe('JsonLogger', () => {
   let jsonLogger: JsonLogger;
   let consoleSpy: jest.SpyInstance;
 
@@ -10,41 +9,51 @@ describe('JsonLogger', ()=>{
     consoleSpy = jest.spyOn(console, 'log').mockImplementation();
   });
 
-  afterEach(()=>{
+  afterEach(() => {
     consoleSpy.mockRestore();
   });
 
-  describe('Json Logger Tests',()=>{
-    it('check message string', ()=>{
+  describe('Json Logger Tests', () => {
+    it('check message string', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      jsonLogger.log("test message", {param1:"testCase"}, {param2: "testCase1"});
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("test message"));  
-    })
+      jsonLogger.log(
+        'test message',
+        { param1: 'testCase' },
+        { param2: 'testCase1' },
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('test message'),
+      );
+    });
 
-    it('check jsonFormat', ()=>{
+    it('check jsonFormat', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      jsonLogger.log("test message", "testCase");
+      jsonLogger.log('test message', 'testCase');
       const output = consoleSpy.mock.calls[0][0];
       const parsed = JSON.parse(output);
 
       expect(parsed).toEqual({
         level: 'log',
         message: 'test message',
-        optionalParams: [["testCase"]]
+        optionalParams: [['testCase']],
       });
-    })
+    });
 
-    it('check jsonFormat with multi argument ', ()=>{
+    it('check jsonFormat with multi argument ', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      jsonLogger.log("test message", {param1:"testCase"}, {param2: "testCase1"});
+      jsonLogger.log(
+        'test message',
+        { param1: 'testCase' },
+        { param2: 'testCase1' },
+      );
       const output = consoleSpy.mock.calls[0][0];
       const parsed = JSON.parse(output);
 
       expect(parsed).toEqual({
         level: 'log',
         message: 'test message',
-        optionalParams: [[{param1:"testCase"}, {param2:"testCase1"}]]
+        optionalParams: [[{ param1: 'testCase' }, { param2: 'testCase1' }]],
       });
-    })
-  })
-})
+    });
+  });
+});

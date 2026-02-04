@@ -10,13 +10,13 @@ describe('OrderController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrderController],
-      providers:[OrderService],
+      providers: [OrderService],
     })
-    .overrideProvider(OrderService)
-    .useValue({
-      postOrder: jest.fn().mockResolvedValue(orderMockResult)
-    })
-    .compile();
+      .overrideProvider(OrderService)
+      .useValue({
+        postOrder: jest.fn().mockResolvedValue(orderMockResult),
+      })
+      .compile();
 
     controller = module.get<OrderController>(OrderController);
   });
@@ -25,11 +25,11 @@ describe('OrderController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return order result', async ()=>{
+  it('should return order result', async () => {
     const orderData: PostOrderDTO = postOrderMock;
 
     const orderResult = await controller.postOrder(orderData);
-    
+
     const result = {
       items: orderData.tickets,
       total: orderData.tickets.length,

@@ -1,8 +1,7 @@
-import { Injectable, LoggerService } from "@nestjs/common";
-import { DevLogger } from "./dev.logger";
-import { JsonLogger } from "./json.logger";
-import { TSKVLogger } from "./tskv.logger";
-import { ConfigService } from "@nestjs/config";
+import { Injectable, LoggerService } from '@nestjs/common';
+import { DevLogger } from './dev.logger';
+import { JsonLogger } from './json.logger';
+import { TSKVLogger } from './tskv.logger';
 
 export enum LoggerType {
   dev = 'dev',
@@ -14,7 +13,7 @@ export enum LoggerType {
 export class LoggerFactory {
   constructor(private loggerType: LoggerType = LoggerType.dev) {}
 
-  createLogger(): LoggerService {   
+  createLogger(): LoggerService {
     switch (this.loggerType) {
       case LoggerType.json:
         return new JsonLogger();

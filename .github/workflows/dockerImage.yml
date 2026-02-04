@@ -36,7 +36,7 @@ jobs:
             context: ./frontend
             push: true
             tags: |
-              ghcr.io/truenoobn1/film-react-nest-frontend:latest
+              ghcr.io/${{ steps.vars.outputs.ACTOR }}/${{ steps.vars.outputs.REPO_NAME }}-frontend:latest
           # labels: ${{ steps.meta.outputs.labels }} 
 
         - name: Build and push Docker backend image 
