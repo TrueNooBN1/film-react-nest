@@ -12,6 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix('api/afisha');
   app.enableCors();
+  console.log(configProvider.useValue.database)
   const loggerFactory = new LoggerFactory(configProvider.useValue.loggerType)
   const logger = loggerFactory.createLogger();
   app.useLogger(logger);

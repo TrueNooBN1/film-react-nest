@@ -28,16 +28,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-
     image: "frontend-docker:latest"
     # в окружение контейнера попадут переменные из файла .env 
     env_file:
      - ./frontend/.env
-    networks:
-     - internal-network
     volumes:
     # Монтируем volume в директорию сборки
-     - frontend-dist:/app/frontend/build-output/
+     - frontend-dist:/app/frontend/dist/
 
   nginx:
     image: "nginx:alpine"

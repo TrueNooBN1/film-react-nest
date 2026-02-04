@@ -1,6 +1,7 @@
 #docker build . -t backend-docker
 #docker run -p 8081:3000 -d backend-docker #DEBUG
 #docker run -p 80:XXXXX -d 'name' #PROD
+#docker image tag backend-docker:node20-alpine truenoob/backend-docker:node20-alpine
 
 FROM node:20-alpine AS builder
 
