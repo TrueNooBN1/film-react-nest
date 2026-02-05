@@ -1,4 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
+import { LoggerType } from './logger/logger.factory';
 
 export const configProvider = {
   imports: [ConfigModule.forRoot()],
@@ -13,11 +14,13 @@ export const configProvider = {
         password: process.env.DATABASE_PASSWORD || 'student',
       },
     },
+    loggerType: process.env.LOGGER_TYPE || 'dev',
   },
 };
 
 export interface AppConfig {
   database: AppConfigDatabase;
+  loggerType: LoggerType;
 }
 
 export interface AppConfigDatabase {

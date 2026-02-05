@@ -6,7 +6,6 @@ import {
 } from '../repository.interface';
 import { PostOrderDTO } from '../../order/dto/order.dto';
 import {
-  TicketsNotFoundInOrderException,
   FilmOrSessionNotFoundException,
   SeatAlreadyBookingException,
 } from '../../exceptions/order.exceptions';
@@ -76,10 +75,6 @@ export class PostrgreSqlRepositoryService implements IRepositoryService {
     console.log(
       `PostrgreSqlrepositoryService::postOrder(order: ${JSON.stringify(order)})`,
     );
-
-    if (order.tickets.length === 0) {
-      throw new TicketsNotFoundInOrderException();
-    }
     const queryRunner = this.dataSource.createQueryRunner();
     //checkSession availability
     queryRunner.connect();

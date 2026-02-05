@@ -1,6 +1,10 @@
+/*CREATE USER student WITH PASSWORD 'student';*/
+/*GRANT ALL PRIVILEGES ON DATABASE film-react-nest TO student;*/
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 create database "film-react-nest" with owner student;
+
 
 create table public.films
 (

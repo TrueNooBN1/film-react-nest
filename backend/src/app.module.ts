@@ -23,5 +23,6 @@ import { DatabaseModule } from './database-module/database-module.module';
   ],
   controllers: [FilmsController, OrderController],
   providers: [configProvider, FilmsService, OrderService],
+  exports: [configProvider],
 })
 export class AppModule {}

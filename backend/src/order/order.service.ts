@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -22,10 +23,15 @@ export class OrderService {
     @Inject(FILM_REPOSITORY_SERVICE)
     private readonly repository: IRepositoryService,
   ) {}
+    private readonly logger = new Logger("orderService");
 
   async postOrder(order: PostOrderDTO) {
     console.log(`OrderService::postOrder(order: ${JSON.stringify(order)})`);
+    this.logger.log(`OrderService::postOrder(order: ${JSON.stringify(order)})`);
     try {
+      if (!order.tickets || order.tickets.length === 0) {
+        throw new TicketsNotFoundInOrderException();
+      }
       const orderResponse = await this.repository.postOrder(order);
       return orderResponse;
     } catch (error) {
