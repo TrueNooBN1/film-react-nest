@@ -72,8 +72,6 @@ MongoDB должна быть установлена и запущена.
 * `json` - логгер в формате JSON
 * `tskv` - логгер в формате TSKV
 
+### Ссылка на проект
 
-
-
-
-
+https://film-truenoob.nomorepartiessbs.ru/
